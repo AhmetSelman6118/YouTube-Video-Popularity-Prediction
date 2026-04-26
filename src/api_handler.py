@@ -26,6 +26,29 @@ def search_videos(query, max_results=50):
     video_ids = [item['id']['videoId'] for item in response.get('items', [])]
     return video_ids
 
+def get_video_details(video_id):
+    """
+    Tek bir video ID'sine göre detayları getirir. (main.py için gerekli)
+    """
+    youtube = get_youtube_client()
+    request = youtube.videos().list(
+        part="snippet,statistics",
+        id=video_id
+    )
+    response = request.execute()
+
+    if not response['items']:
+        return None
+
+    video_data = response['items'][0]
+    return {
+        "title": video_data['snippet']['title'],
+        "views": video_data['statistics'].get('viewCount', 0),
+        "likes": video_data['statistics'].get('likeCount', 0),
+        "comments": video_data['statistics'].get('commentCount', 0),
+        "published_at": video_data['snippet']['publishedAt']
+    }
+
 def get_bulk_video_details(video_ids):
     """
     ID listesi verilen videoların detaylarını toplu halde çeker.
