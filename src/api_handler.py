@@ -1,0 +1,55 @@
+import os
+import pandas as pd
+import json
+from dotenv import load_dotenv
+from googleapiclient.discovery import build
+
+load_dotenv()
+
+def get_youtube_client():
+    api_key = os.getenv("YOUTUBE_API_KEY")
+    return build("youtube", "v3", developerKey=api_key)
+
+def search_videos(query, max_results=50):
+    """
+    Belirli bir kelimeyle arama yapar ve Video ID'lerini döndürür.
+    """
+    youtube = get_youtube_client()
+    request = youtube.search().list(
+        q=query,
+        part="id",
+        type="video",
+        maxResults=max_results
+    )
+    response = request.execute()
+    
+    video_ids = [item['id']['videoId'] for item in response.get('items', [])]
+    return video_ids
+
+def get_bulk_video_details(video_ids):
+    """
+    ID listesi verilen videoların detaylarını toplu halde çeker.
+    """
+    youtube = get_youtube_client()
+    # API 50'şerli gruplar halinde çekmeye izin verir
+    request = youtube.videos().list(
+        part="snippet,statistics,contentDetails",
+        id=",".join(video_ids)
+    )
+    response = request.execute()
+    
+    all_video_data = []
+    for item in response.get('items', []):
+        data = {
+            "video_id": item['id'],
+            "title": item['snippet']['title'],
+            "published_at": item['snippet']['publishedAt'],
+            "category_id": item['snippet']['categoryId'],
+            "duration": item['contentDetails']['duration'],
+            "view_count": int(item['statistics'].get('view_count', 0)),
+            "like_count": int(item['statistics'].get('like_count', 0)),
+            "comment_count": int(item['statistics'].get('comment_count', 0))
+        }
+        all_video_data.append(data)
+    
+    return all_video_data
