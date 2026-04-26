@@ -54,7 +54,7 @@ def get_bulk_video_details(video_ids):
     ID listesi verilen videoların detaylarını toplu halde çeker.
     """
     youtube = get_youtube_client()
-    # API 50'şerli gruplar halinde çekmeye izin verir
+    
     request = youtube.videos().list(
         part="snippet,statistics,contentDetails",
         id=",".join(video_ids)
