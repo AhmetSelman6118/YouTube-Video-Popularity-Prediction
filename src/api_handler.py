@@ -69,9 +69,10 @@ def get_bulk_video_details(video_ids):
             "published_at": item['snippet']['publishedAt'],
             "category_id": item['snippet']['categoryId'],
             "duration": item['contentDetails']['duration'],
-            "view_count": int(item['statistics'].get('view_count', 0)),
-            "like_count": int(item['statistics'].get('like_count', 0)),
-            "comment_count": int(item['statistics'].get('comment_count', 0))
+            # BURASI KRİTİK: API'den gelen isimler viewCount, likeCount, commentCount şeklindedir.
+            "view_count": int(item['statistics'].get('viewCount', 0)),
+            "like_count": int(item['statistics'].get('likeCount', 0)),
+            "comment_count": int(item['statistics'].get('commentCount', 0))
         }
         all_video_data.append(data)
     
